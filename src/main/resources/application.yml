@@ -1,0 +1,20 @@
+server:
+  port: 8888
+
+#数据库配置
+postgres:
+  driver-class-name: org.postgresql.Driver
+  username: postgres
+  password: #java021
+  url: jdbc:postgresql://localhost:5432/b2g_test
+  max-active: 10
+spring:
+  freemarker:
+    cache: false
+    template-loader-path: classpath:/templates
+    content-type: text/html
+    suffix: .ftl
+    request-context-attribute: request
+    expose-request-attributes: true
+    expose-session-attributes: true
+    charset: UTF-8
