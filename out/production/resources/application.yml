@@ -1,5 +1,7 @@
+
 server:
   port: 8888
+  context-path: /spring-boot-gradle
 
 #数据库配置
 postgres:
@@ -13,8 +15,15 @@ spring:
     cache: false
     template-loader-path: classpath:/templates
     content-type: text/html
-    suffix: .ftl
-    request-context-attribute: request
+    suffix: .html
+    request-context-attribute: req
     expose-request-attributes: true
+    expose-spring-macro-helpers: true
     expose-session-attributes: true
     charset: UTF-8
+    allow-request-override: true
+    allow-session-override: true
+    enabled: true
+failure:
+  failure-mapping:
+      com.travelzen.sbg.exception.MyUserLoginException: /login?message=passwordFailed

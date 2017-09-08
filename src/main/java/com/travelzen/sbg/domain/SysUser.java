@@ -1,6 +1,7 @@
 package com.travelzen.sbg.domain;
 
 import com.google.common.base.Objects;
+import org.apache.tomcat.jni.User;
 
 import java.util.List;
 

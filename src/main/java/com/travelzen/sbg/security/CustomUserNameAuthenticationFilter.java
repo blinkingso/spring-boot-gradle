@@ -3,19 +3,31 @@ package com.travelzen.sbg.security;
 import com.travelzen.sbg.domain.SysUser;
 import com.travelzen.sbg.exception.MyUserLoginException;
 import com.travelzen.sbg.mapper.SysUserMapper;
+import com.travelzen.sbg.properties.FailureUrlMapProperties;
+import com.travelzen.sbg.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 自定义用户账号密码校验等
@@ -32,9 +44,41 @@ public class CustomUserNameAuthenticationFilter extends UsernamePasswordAuthenti
 
     @Autowired
     private SysUserMapper sysUserMapper;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private LoginAuthenticationSuccessHandler loginAuthenticationSuccessHandler;
+    @Autowired
+    private LoginAuthenticationFailureHandler loginAuthenticationFailureHandler;
+    @Autowired
+    private FailureUrlMapProperties failureUrlMapProperties;
 
     public CustomUserNameAuthenticationFilter() {
         super();
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        // security 配置
+        daoAuthenticationProvider.setUserDetailsService(customUserDetailsService);
+        // 不隐藏登录校验异常信息
+        daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
+        authenticationProviders.add(daoAuthenticationProvider);
+        ProviderManager providerManager = new ProviderManager(authenticationProviders);
+        loginAuthenticationFailureHandler.setExceptionMappings(failureUrlMapProperties.getFailureMapping());
+        setPostOnly(true);
+        setFilterProcessesUrl("/userLogin");
+        setAuthenticationManager(providerManager);
+        setAuthenticationSuccessHandler(loginAuthenticationSuccessHandler);
+        setAuthenticationFailureHandler(loginAuthenticationFailureHandler);
+        super.afterPropertiesSet();
+    }
+
+    @Override
+    public void setPostOnly(boolean postOnly) {
+        super.setPostOnly(postOnly);
     }
 
     @Override
@@ -46,7 +90,7 @@ public class CustomUserNameAuthenticationFilter extends UsernamePasswordAuthenti
         }
         String username = obtainUsername(request).trim();
         String password = obtainPassword(request).trim();
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
             throw new MyUserLoginException("username or password can not be null.");
         }
         SysUser sysUser = sysUserMapper.selectByUsername(username);
@@ -71,6 +115,4 @@ public class CustomUserNameAuthenticationFilter extends UsernamePasswordAuthenti
         Object password = request.getParameter(PASSWORD);
         return password == null ? "" : password.toString();
     }
-
-
 }
