@@ -28,7 +28,7 @@ public class SpringWebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.addFilterBefore(customUserNameAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(filterSecurityInterceptor, FilterSecurityInterceptor.class);
+        http.addFilterBefore(filterSecurityInterceptor, CustomUserNameAuthenticationFilter.class);
 
         http.authorizeRequests().antMatchers("/css/**").permitAll()
                 .antMatchers("/js/**").permitAll()

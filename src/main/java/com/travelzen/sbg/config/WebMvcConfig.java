@@ -1,5 +1,8 @@
 package com.travelzen.sbg.config;
 
+import com.travelzen.sbg.classload.ClassPathTldsLoader;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -24,5 +27,11 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
         //registry.addResourceHandler("/**").addResourceLocations("classpath:/templates/");
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ClassPathTldsLoader.class)
+    public ClassPathTldsLoader classPathTldsLoader() {
+        return new ClassPathTldsLoader();
     }
 }

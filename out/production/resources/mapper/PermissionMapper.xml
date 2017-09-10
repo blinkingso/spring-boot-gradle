@@ -9,7 +9,7 @@
         select p.* from sys_user u
         left join sys_role_user sru on u.id = sru.sys_user_id
         left join sys_role sr on sru.sys_role_id=sr.id
-        left join sys_permission_role spr on spr.role_id-sr.id
+        left join sys_permission_role spr on spr.role_id=sr.id
         left join sys_permission p on spr.permission_id=p.id
         where u.id = #{userId}
     </select>

@@ -27,6 +27,7 @@ public class DBConfig {
         dataSource.setMaxActive(Integer.valueOf(dbProperties.getMaxActive()));
         dataSource.setUsername(dbProperties.getUsername());
         dataSource.setPassword(dbProperties.getPassword());
+        dataSource.setPassword("#java021");
         return dataSource;
     }
 
